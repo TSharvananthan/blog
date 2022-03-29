@@ -1,0 +1,134 @@
+---
+title: Starts With Ends With
+date: '2022-03-28'
+tags: ['words', 'yippeee']
+draft: false
+summary: "What words start with X and end with V?"
+---
+> Long story short... I built a website that lets you search for words based on their first and last letters. Is it any good? Absolutely NOT... but alas... [here is the website for you to try and break :)](https://starts-with-ends-with.netlify.app/)
+
+## If I'm being honest...
+... I have absolutely NO clue where this project idea came from.
+
+The most that I remember that I conceptualized of an application like this sometime around mid 2020.
+
+Moreover, I've always had a Python implementation. The code is rather short and it's a matter of searching a really large list of words for certain characters.
+
+All that I did was...
+
+1. Download a [dataset](https://github.com/dwyl/english-words) of about 479 thousand English words
+2. Grab a letter to check for the first character
+3. Grab a letter to check for the last character
+4. Loop, loop, loop... and you guessed it... LOOP
+
+Here was the implementation that I went with back in 2020.
+
+```py
+valid_words = set(open('words.txt', "r").read().split())
+
+first_letter = "a"
+last_letter = "t"
+
+results = [
+  word for word in words
+  if word.startswith(first_letter)
+  and word.endswith(last_letter)
+]
+
+print(results)
+```
+
+## Dusting Ye Ole Project Off
+A couple days ago, I was just scrolling through my previous projects... stuff that I had done during the times of COVID and beyond.
+
+This was one of those projects that I happen to dust off.
+
+In my eyes, I saw it as a pretty chill project that I could knock out in a few hours.
+
+> Hmm... WHY NOT??
+
+I said as I proceeded to slap together this hell of a product.
+
+## So... what does it do again??
+Here's the homepage
+
+![The homepage of "Starts With Ends With"](/post-assets/starts-with-ends-with/1.png)
+
+It allows you to choose the letter it should start with and the letter that it should end with.
+
+From there, you click the question mark and results appear.
+
+![The homepage of "Starts With Ends With"](/post-assets/starts-with-ends-with/2.png)
+
+## So... HOW exactly did you build this??
+At first, I wanted to whip this up using Next.js. I had grown quickly fond of the library and didn't mind creating another site with it.
+
+However, I wanted to publish on Netlify. I've always procrastinated on doing so. As a result... I'VE NEVER REALLY KNOWN HOW THE PROCESS WORKS (spoilers, it was super easy and went well)
+
+I ended up using React and TailwindCSS.
+
+For the fade in animations, I used a [super handy component](https://www.npmjs.com/package/react-fade-in) and used react-router to create the simple route between the homepage and the search results page.
+
+The algorithm to search for the words was written in plain Javascript and is pretty similar to my approach in Python.
+
+```js
+function wordSearch(startingLetter, endingLetter) {
+  let searchResults = [];
+
+  for (let word of wordList)
+  {
+    let firstLetterMatch = word.charAt(0).toUpperCase() === startingLetter;
+    let lastLetterMatch = word.charAt(word.length - 1).toUpperCase() === endingLetter;
+
+    if (firstLetterMatch && lastLetterMatch)
+    {
+      searchResults.push(word);
+    }
+  }
+
+  return searchResults;
+}
+```
+
+## Some Next Steps
+There are definitely a few things that I could do as a next set of steps...
+
+**1. A better goddamn name.**
+
+"Starts With Ends With" is a HORRIBLE name. Sure it gets straight to the point... but alas... IT STILL SUCKS.
+
+Even when I first implemented it in Python back in 2020, I STILL didn't know what I could name it.
+
+In general... I SUCK AT NAMING THINGS.
+
+Ironically, while this is the first step that I'd like to take, it may as well be the last step that I'd take.
+
+**2. Incorporate definitions**
+
+At the end of the day, all that Start With Ends With only does is give you words... and that's it.
+
+It's just a WALL of words.
+
+![The homepage of "Starts With Ends With"](/post-assets/starts-with-ends-with/3.png)
+
+It's super DULL and BORING and doesn't hold much to it.
+
+At the end of the day however, it may as well be a result of what I wanted to build.
+
+Regardless, I'd still love to iterate on this site with fresh ideas.
+
+**3. I can't describe it with one sentence but hear me out.**
+
+Whenever I'm searching something like an online converter, I always see websites that pump out one of their pages and acts as if it's a separate application.
+
+I can't word it well... but the idea is that I'd like it so that when a user searches something along the lines of *"what words starts with t and ends with a"*, they see my website and the certain search result included.
+
+**4. Design the site a tad better**
+
+The site is only really three colors (and one of them IS LITERALLY JUST MY NAME)
+
+There's space to improve on the layout.
+
+## Final Thoughts (for now???)
+
+Not bad... that's really all that I have to say.
