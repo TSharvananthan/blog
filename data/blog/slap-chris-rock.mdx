@@ -1,0 +1,397 @@
+---
+title: Slap Chris Rock
+date: '2022-04-02'
+tags: ['slap', 'simple-project']
+draft: false
+summary: "At your highest moment, be careful, that’s when the devil comes for you."
+---
+> Long story short... you can now slap Chris Rock yourself through [this website](https://slap-chris-rock.netlify.app)
+
+## Contents
+1. [Get out the rye bread and mustard, Grandma, it's a grand salami](#rye-bread)
+2. [Eel Slap!](#eel-slap)
+3. [Observations](#observations)
+4. [No... depandancies?](#no-depandancies)
+5. [BUILD BUILD BUILD BUILD BUILD](#build)
+    - [Getting the frames](#getting-the-frames)
+    - [The website](#the-website)
+    - [Some animations :D](#some-animations)
+
+## Get out the rye bread and mustard, Grandma, it's a grand salami <a id="rye-bread" />
+I saw the slap... you probably also saw the slap...
+
+Quite a night if I say so myself.
+
+I was just doing some school work when I randomly hopped on Twitter.
+
+I take a quick glance at the trending page and notice
+
+> Will Smith
+
+All of a sudden, I got to see Chris Rock get out the [rye bread and mustard for a slapami](https://www.youtube.com/watch?v=LWYQwDgICug)... courtesy of Will Smith.
+
+## Eel Slap! <a id="eel-slap" />
+So I'm having quite a time scrolling through Twitter and seeing everyone's takes on it
+
+And I'll be honest when I say that I have absolutely no idea why this next bit happened... but I was somehow reminded of [Eel Slap!](http://eelslap.com)
+
+I don't even remember where it came from... it wasn't even the idea of the slap that reminded me of it
+
+I think I was just scrolling through *god knows where* and just happened to find it.
+
+All of a sudden...
+
+<p className="text-center text-6xl leading-none">💡</p>
+
+***Why don't I just... MAKE A CLONE OF THIS***
+
+## Observations <a id="observations" />
+The first thing I did was to take a look at the Eel Slap source code
+
+For some context... this is how the page looks like
+
+![A screenshot of Eel Slap!](/post-assets/slap-chris-rock/1.png)
+
+The main detail is some kind of canvas that's placed in the center of the webpage.
+
+In other words, much of the state will be applied onto that one canvas.
+
+I found the block of code that held this "canvas"
+
+```html
+<div id="eelcontainer" class="eel">
+    <div id="loader">LOADING...</div>
+    <div id="introtext">yo</div>
+    <div id="allimages">
+        <img class="eelimages" id="eelimage1" src="" width="15360" height="480">
+        <img class="eelimages" id="eelimage2" src="" width="14720" height="480">
+        <img class="eelimages" id="eelimage3" src="" width="15360" height="480">
+        <img class="eelimages" id="eelimage4" src="" width="14720" height="480">
+    </div>
+</div>
+```
+
+Turns out, it's a `<div>` with... four images?
+
+At first, it caught me off guard.
+
+However, from inspecting the state of the container, I noticed that the CSS of the `allimages` kept changing.
+
+At first, the code looked like the following:
+
+```html
+<div id="allimages" style="display: block; opacity: 1; left: 0px;">
+```
+
+However, if I finish the slapping animation, the CSS would look the following:
+
+```html
+<div id="allimages" style="display: block; opacity: 1; left: -59520px;">
+```
+
+From seeing this, there were two observations that I could make.
+
+1. The animation effect comes from a series of frames being shifted... sorta like how old films would be played by shifting individual frames.
+2. There are multiple images being used to complete this effect.
+
+Inspecting the image links would further confirm this.
+
+![A panorama that Eel Slap! makes use of](/post-assets/slap-chris-rock/2.png)
+
+![Another panorama that Eel Slap! makes use of](/post-assets/slap-chris-rock/3.png)
+
+![A THIRD panorama that Eel Slap! makes use of](/post-assets/slap-chris-rock/4.png)
+
+![The last panorama that Eel Slap! makes use of](/post-assets/slap-chris-rock/5.png)
+
+<p className="text-center text-6xl font-extrabold">Eureka</p>
+
+Something else to note is that I wouldn't need to go out of my way to splice the frames into multiple images.
+
+Given that the slap is quite short, my gut told me that it wasn't needed.
+
+At this point, it was a matter of implementing the damn site.
+
+## No... depandancies? <a id="no-depandancies" />
+I genuinely asked myself if it was worthwhile to use React or Next.
+
+While it made the bootstrap process a tad easier, I found that it would make my life a WHOLE lot easier by using raw HTML, CSS and Javascript.
+
+Besides, for a website as small as this, using a framework and all it's boilerplate would be over-engineering it.
+
+## BUILD BUILD BUILD BUILD BUILD <a id="build" />
+Lemme break this process down into it's needed steps
+### Getting the frames <a id="getting-the-frames" />
+The process behind this was surprisingly easy. It was just a matter of:
+
+1. Downloading the Youtube video using something like `youtube-dl`
+
+`youtube-dl https://www.youtube.com/watch?v=myjEoDypUD8 -o slap.mp4`
+
+Note that I only look for 1280x720 videos. I just find it easy that way...
+
+However, some videos may not download as 1280x720 on default.
+
+So how exactly do I counter that???
+
+Well... `youtube-dl` solves that problem by letting us choose.
+
+I can type the following command:
+
+`youtube-dl -F https://www.youtube.com/watch?v=myjEoDypUD8`
+
+That gives me the following...
+
+```
+[youtube] myjEoDypUD8: Downloading webpage
+[info] Available formats for myjEoDypUD8:
+format code  extension  resolution note
+249          webm       audio only tiny   48k
+250          webm       audio only tiny   60k
+251          webm       audio only tiny  119k
+140          m4a        audio only tiny  129k
+160          mp4        256x144    144p   43k
+394          mp4        256x144    144p   58k
+278          webm       256x144    144p   79k
+133          mp4        426x240    240p   68k
+242          webm       426x240    240p   88k
+395          mp4        426x240    240p   89k
+134          mp4        640x360    360p  119k
+243          webm       640x360    360p  147k
+396          mp4        640x360    360p  155k
+135          mp4        854x480    480p  175k
+244          webm       854x480    480p  216k
+397          mp4        854x480    480p  256k
+136          mp4        1280x720   720p  311k
+247          webm       1280x720   720p  323k
+398          mp4        1280x720   720p  485k
+399          mp4        1920x1080  1080p  886k
+248          webm       1920x1080  1080p 1017k
+137          mp4        1920x1080  1080p 1255k
+18           mp4        640x360    360p  571k
+22           mp4        1280x720   720p  440k
+```
+
+(Note that there's more to the right that I deleted. However, this is the information that's needed)
+
+My criteria is the following:
+    1. The extension is mp4
+    2. The resolution is 1280x720
+    3. The quality is as high as it can get
+
+Furthermore, I can find the format code that I need (in this situation, 22) and enter the following
+
+`youtube-dl https://www.youtube.com/watch?v=myjEoDypUD8 -o slap.mp4`
+
+2. Cutting the video into an approximate range where the slap takes place.
+
+`ffmpeg -ss 00:00:33 -to 00:00:42  -i slap.mp4 -c copy cut.mp4`
+
+(note that for the video above, that was the range that I found best. Reality is that with each video... the range changes)
+
+(note note that I gave quite a generous range. While it results in more frames to sort out, I found it easier to deal with the frames then to re-clip the video every time I screw up)
+
+3. Splitting the cut video into it's individual frames.
+
+(I happen to have a `frames/` directory that I can make use of)
+
+`ffmpeg -i cut.mp4 frames/%d.jpg -hide_banner`
+
+4. Manually finding the best 41 frames
+
+In regards to choosing good frames, there are a few points that I raised in the repo for this project that I would like to mention here as well.
+    - A good starting frame would be a few frames right before the slap (maybe a few frames of the walk if REALLY needed).
+    - A good ending frame would be a few frames right after the slap or after the gag.
+    - Some slap memes are too long for it to work for an app like this... at the end of the day, it should stick to that 41 frame limit as I have absolutely no clue how to implement it in a way where it compensates for a frame count over/under the expected amount.
+
+Once I got past the issue of downloading frames, it was quite smooth from there.
+
+It was just a matter of making the website.
+
+### The website <a id="the-website" />
+I slapped together a quick webpage
+
+```html
+<body>
+  <header class="text-center">
+    <h1 class="title">slap chris rock</h1>
+    <h3 class="subtitle">
+      &quot;It's like
+      <a href="http://eelslap.com/" target="_blank">Eel Slap!</a>... but a
+      <i>whole lot worse</i>&quot;
+    </h3>
+  </header>
+
+  <div class="container">
+    <div class="image">
+      <img src="frames/normal.jpg" id="slap" width="52480" height="680"
+          draggable="false" />
+    </div>
+  </div>
+</body>
+```
+
+Slapped together equally as fast CSS
+
+```css
+body {
+  font-family: Helvetica, Sans-Serif;
+  text-align: center;
+}
+
+.container {
+  position: absolute;
+  width: 1280px; height: 720px;
+  margin-left: auto; margin-right: auto;
+  left: 0; right: 0;
+	overflow: hidden;
+  text-align: center;
+}
+
+.title {
+  font-size: 8rem;
+  line-height: 0px;
+}
+
+.subtitle { font-size: 2rem; }
+
+#slap {
+  position: absolute;
+  left: 0px;
+}
+
+footer { font-size: 0.75rem; }
+```
+
+The Javascript was also rather simple to implement
+
+```js
+document.onmousemove = handleMouseMove;
+
+let imageElement = document.getElementById("slap");
+
+function handleMouseMove(event) {
+    let pageWidth = document.documentElement.clientWidth;
+    let dividingFactor = pageWidth / 40;
+    let imageNum = 40 - Math.round(event.pageX / dividingFactor);
+    setTimeout(() => {
+      imageElement.style.left = `${imageNum * -1280}px`;
+    }, 100)
+}
+```
+
+There are some parts of the handleMouseMove function that I would like to make note of
+
+```js
+let dividingFactor = pageWidth / 40;
+```
+A question that I need to ask is "how can I determine the image to show based on your mouse position".
+
+Let's approach this with an example.
+
+Lets say your screen is 1980x1080.
+
+It would look something along the lines of this:
+
+![A panorama that Eel Slap! makes use of](/post-assets/slap-chris-rock/6.png)
+
+One approach is to split the monitor into 40 sections.
+
+![A panorama that Eel Slap! makes use of](/post-assets/slap-chris-rock/7.png)
+
+Whatever section that the mouse is in, you just show that image.
+
+For instance, if the mouse is on the fourth section, you show the fourth last frame (given that it's moving from right to left).
+
+However, an issue arises once the screen gets smaller.
+
+![A panorama that Eel Slap! makes use of](/post-assets/slap-chris-rock/8.png)
+
+Note how there aren't 40 sections anymore. What... happened?
+
+In short, certain parts of the grid can't be seen.
+
+![A panorama that Eel Slap! makes use of](/post-assets/slap-chris-rock/9.png)
+
+<figcaption className="text-center">Kinda like this image!</figcaption>
+
+The issue with this is that certain frames will never be reached. As a result, the movement won't be completely shown.
+
+The simple fix is to calculate the number of pixels that each section needs.
+
+`dividingFactor` represents this number of pixels.
+
+```js
+let imageNum = 40 - Math.round(event.pageX / dividingFactor);
+```
+This equation can further be broken down
+
+***Math.round(event.pageX / dividingFactor)***
+
+`event.pageX` represents the x coordinate of the mouse in the moment. By dividing it with the dividingFactor, I'm asking: "what section am I in at the moment"
+
+For instance, if my mouse was all the way to the left, that implies that `event.pageX` would be a value close to 0
+
+As a result, I would like to show the first frame.
+
+I round the value in order to achieve this and create a whole number.
+
+***40 - Math.round(event.pageX / dividingFactor)***
+
+The issue with our previous statement is that I don't intent for the mouse to move from *left to right*.
+
+Rather, I'd like it to be the opposite.
+
+By shifting my previous value by 40, it ensures that I get an image based on movement from *right to left*.
+
+```js
+setTimeout(() => {
+  imageElement.style.left = `${imageNum * -1280}px`;
+}, 100)
+```
+So okay... I shifted the panoramic image to the left. Since the video was 1280 pixels wide, the subsequent frames are also 1280 pixels wide.
+
+As a result, when you shift the image to the left with a factor of -1280, you're moving to another frame.
+
+But why the timeout event? When I first built the site, I noted how quickly the frames would transition itself. I wanted to have some kind of pause so that when the user moves the mouse, it gives a better illusion of *"as you move your mouse, you get to slap Chris Rock"*.
+
+### Some animations :D <a id="some-animations" />
+So now that the basic site is done, there IS one small change that I can make.
+
+I can add some... ANIMATIONS :D.
+
+This was my first time using [animate.css](https://animate.style).
+
+Yet, it went as smooth as expected.
+
+The changes were so minimal... it would be difficult to notice
+
+```html
+<body>
+  <header class="text-center animate__animated animate__fadeInDown">
+    <h1 class="title">slap chris rock</h1>
+    <h3 class="subtitle">
+      &quot;It's like
+      <a href="http://eelslap.com/" target="_blank">Eel Slap!</a>... but a
+      <i>whole lot worse</i>&quot;
+    </h3>
+  </header>
+
+  <div class="container animate__animated animate__fadeIn">
+    <div class="image">
+      <img src="frames/normal.jpg" id="slap" width="52480" height="680"
+            draggable="false" />
+    </div>
+  </div>
+</body>
+```
+
+## Some Things I Can Improve
+There a few things that I could definitely improve upon.
+    1. Better variable names: I don't really need to explain this. Can generally refactor code.
+    2. A more responsive design: I would definitely like to add mobile support sometime in the future.
+    3. Adding more variations: I already have a few panoramic images. I just need to implement some kind of selection system.
+
+All in all, pretty nice project to make. Had some fun doing it.
+
+You can find the code on [Github](https://github.com/TSharvananthan/slap-chris-rock)
