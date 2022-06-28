@@ -1,0 +1,414 @@
+---
+title: Scraping 226,209 Events from onthisday.com
+date: '2022-06-28'
+tags: ['dataset', 'scraping']
+draft: false
+summary: Methodology of scraping onthisday.com
+---
+
+For some data analysis, I wanted a dataset of celebrity births and deaths. However, I wanted the _exact_ date and not just the year. I wrote a script for it.
+
+However, I realized really, REALLY quickly that I could extend it to practically the whole site...
+
+... and so I did.
+
+Here, I will outline what I did and the process of scraping 200k+ events.
+
+At the same time, I hope to shed light on things that I could have done better.
+
+## Goals
+
+The major objective of this was to scrape events. Specifically,
+
+- The year that the event occurred
+- The context of the event that occurred
+
+## Collecting URLs
+
+URLs on the site follow a consistent format.
+
+`https://www.onthisday.com/<category>/<month>/<day>`
+
+At that point, I just needed a set of every possible value for the `category`, `month` and `day` parameters.
+
+From the get-go, I knew the possible values of categories and months.
+
+```py
+categories = ["birthdays", "deaths", "events", "weddings"]
+months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+```
+
+For days, however every month has a specific number of days. Thankfully, there was the `calendar.monthrange(year, month)` function.
+
+```py
+days = [monthrange(2020, m)[1] for m in range(1, 13)]
+```
+
+(note that I chose 2020 for the year since it was a leap year and would include February 29)
+
+From here, it's a matter of exhausting every combination and creating a new URL
+
+```py
+urls = []
+
+for category in categories:
+    for month, last_day in zip(months, days):
+        for day in range(1, last_day+1):
+            u = f"https://www.onthisday.com/{category}/{month}/{day}" + "?p={}"
+            urls.append(u)
+```
+
+Note that I included the `?p={}` since a certain day can have multiple pages.
+
+## Understanding Event Formatting
+
+Events on onthisday.com are formatted in one of two ways.
+
+### Formatting Method #1
+
+![image.png](/post-assets/on-this-day/1.png)
+
+The HTML for something formatted like this looks like the following.
+
+```html
+<li class="event">
+  <a href="/events/date/1235" class="date">1235</a> Emperor Joseph II orders Jews of Galicia Austria
+  to adopt family names
+</li>
+```
+
+### Formatting Method #2
+
+![image.png](/post-assets/on-this-day/2.png)
+
+```html
+<div class="section section--highlight section--pl">
+  <div class="wrapper">
+    <div class="grid">
+      <div class="grid__item one-whole--768 five-twelfths--1024">
+        <header>
+          <h3 class="poi__heading">
+            <a href="/photos/completion-of-the-reconquista" class="section__link">
+              <img
+                class="section--icon"
+                src="/images/flags/spain.svg"
+                width="69"
+                height="69"
+                alt=""
+              /><span class="poi__heading-txt">Completion of the Reconquista</span>
+            </a>
+          </h3>
+        </header>
+        <p>
+          <a href="/events/date/1492" class="date">1492</a> Muhammad XII, the last Emir of Granada,
+          surrenders his city to
+          <a href="/people/ferdinand-ii-of-aragon">Ferdinand II of Aragon</a> and Isabel I of
+          Castile, ending both the Reconquista and centuries of Muslim rule in the Iberian peninsula
+        </p>
+      </div>
+      <div class="grid__item one-whole--768 seven-twelfths--1024">
+        <a href="/photos/completion-of-the-reconquista">
+          <figure>
+            <img
+              src="/images/photos/reconquest-is-completed-600.jpg"
+              width="600"
+              height="385"
+              alt=""
+            />
+            <figcaption>
+              The Surrender of Granada by Francisco Pradilla Ortiz: Ferdinand II of Aragon and
+              Isabella I of Castile accept the surrender of Granada
+            </figcaption>
+          </figure>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+## Scraping A Single Page
+
+I took the easy approach of scraping the individual formats into separate lists.
+
+For the first formatting method, it was only a matter of collecting every `<li>` tag.
+
+```py
+p1 = [_.text for _ in soup.find("article").find_all("li")]
+```
+
+For the second formatting method, it was a matter of collecting `<div>` tags that had a certain class
+
+```py
+p2 =  [_.find("p").text for _ in soup.find_all("div", {"class": "section--highlight"})]
+```
+
+At this point, it was only a matter of adding the two lists and returning them.
+
+## Scraping Multiple Pages
+
+As mentioned earlier, certain days could have multiple pages. The simple solution was for me to set a while loop that kept going until there was an error.
+
+(this was also the most convenient method for my very modularized code)
+
+```py
+i = 1
+page_data = []
+
+while True:
+    try:
+        result = _scrape_page(url.format(i))
+        i += 1
+
+    except:
+        break
+
+    page_data.extend(result)
+```
+
+Something rather annoying was that when an unreachable page was requested, the website would spit back the first page. As a result, this approach didn't work since there wasn't an error to catch.
+
+However, since it returned to the first page, I reckoned that as long as
+
+- `page_data` had more than 0 elements (implying that a page had been scraped)
+- The first element of `result` and `page_data` (implying that the first page was reached for a second time)
+
+I could break the loop
+
+```py
+i = 1
+page_data = []
+while True:
+    result = _scrape_page(url.format(i))
+
+    if len(page_data) > 0:
+        if result[0] == page_data[0]:
+            break
+
+    i += 1
+    page_data.extend(result)
+```
+
+From here, it was a matter of saving the final output as a single text file. To name the text file, I took the URL and did a few replacements.
+
+A possible series of steps is the following
+
+- `https://www.onthisday.com/events/january/2?p={}`
+- Remove the domain --> `events/january/2?p={}`
+- Remove ?p={} --> `events/january/2`
+- Replace every / with - --> `events-january-2`
+
+```py
+output_file = url.replace('https://www.onthisday.com/', '').replace('?p={}', '').replace("/", "-")
+
+with open(f"raw/{output_file}.txt", "w") as fp:
+    fp.write("\n".join(page_data))
+```
+
+## Incorporating Threading
+
+For context, there are 366 days \* 4 categories = 1464 URLs to scrape
+
+If I was generous with my computer and said that it took 0.5 seconds to scrape a URL, that would still mean that it takes around 1464 / 0.5 = 732 seconds / 60 = **12.2 minutes**
+
+I don't want to deal with that. The solution? THREADING.
+
+I created 12 threads (probably too much now that I look back at it) and went to town.
+
+```py
+urls = scraping_tools._gen_urls()
+url_chunks = utils.chunks(urls, 12)
+
+threads = [
+    threading.Thread(
+        target=scraping_tools.scrape_pages,
+        args=(chunk,)
+    )
+
+    for chunk in url_chunks
+]
+
+for thread in threads:
+    thread.start()
+
+for thread in threads:
+    thread.join()
+```
+
+## A Minor Mistake
+
+At this point, the code was running pretty well. However, I noticed that an error would eventually come up.
+
+One of the days didn't have the same, consistent layout as the other days. From investigating, it turned out that there wasn't a page for birthdays on August 26th.
+
+Thankfully, it didn't completely break my program. However, I still needed to fix it.
+
+When BeautifulSoup fails to find an element, it returns an empty list. All that I needed to do was check for one and end the loop if it occurs.
+
+```diff
+i = 1
+page_data = []
+while True:
+    result = _scrape_page(url.format(i))
+
++   if result == []:
++       break
+
+    if len(page_data) > 0:
+        if result[0] == page_data[0]:
+            break
+
+    i += 1
+    page_data.extend(result)
+```
+
+At this point, I had 1464 text files of raw information. At this point, I needed to clean the data and create one final CSV.
+
+## Cleaning
+
+There were five categories that I wanted.
+
+- category
+- day
+- month
+- year
+- content
+
+Let's say I was cleaning a file named `raw/birthdays-april-1.txt`. How do I go by cleaning data?
+
+Given the filename, I already had the category, month and day. In this situation, it's `birthdays`, `april` and `1` respectively.
+
+This is how it looks in the code
+
+```py
+category, month, day = file[4:-4].split("-")
+```
+
+Note that the string is spliced because I need to remove `raw/` and `.txt` from the filename.
+
+At the same time, take note of what one event looks like.
+
+`1220 Emperor Go-Saga of Japan (d. 1272)`
+
+The first number is the year. The rest of the text is the content.
+
+All I need to do is split a space once.
+
+```py
+year, content = thing.split(" ", 1)
+```
+
+At this point, it's a matter of repeating it for every event in every file.
+
+```py
+for file in files:
+    category, month, day = file[4:-4].split("-")
+    things = open(file, "r").read().split("\n")
+
+    for thing in things:
+
+        try:
+            year, content = thing.split(" ", 1)
+
+            rows.append([category.title(), int(day), month.title(), int(year), content])
+
+        except:
+            logging.error(f"Cannot parse '{thing}'")
+```
+
+(I included some logging to make my life debugging a tad easier)
+
+## Invalid Events
+
+Throughout the process of cleaning the data, there was quite a lot of invalid data that should not have been in the final dataset. While most didn't slip through (the log recorded 350,639 errors), there were still some that did.
+
+### What Didn't Slip Through
+
+When scraping for `<li>` tags at the start, I overlooked that it grabbed unneeded content. This included:
+
+- The `<select>` content that selected days, months and birthdays
+- The heading and title for pages
+- Navigation bars that were meant to navigate between a certain day categorically
+- A `<div>` that recommended famous people by cause of death.
+
+For example,
+
+```
+24 Sep
+Weddings & Divorces Calendar
+Sep 26
+♈︎Aries
+♉︎Taurus
+♊︎Gemini
+♋︎Cancer
+♌︎Leo
+♍︎Virgo
+♎︎Libra
+♏︎Scorpio
+♐︎Sagittarius
+♑︎Capricorn
+♒︎Aquarius
+♓︎Pisces
+```
+
+### What Slipped Through
+
+Months... a LOT OF MONTHS. When I looked at an early version of the dataset, the first thing that I noticed was the following...
+
+```
+Events,1,January,1,Jan
+Events,25,March,1,Feb
+Events,25,December,1,Mar
+Events,20,August,2,Apr
+Events,12,August,3,May
+Birthdays,24,December,3,Jun
+Events,3,August,8,Jul
+Deaths,27,November,8,Aug
+Birthdays,17,November,9,Sep
+```
+
+I counted around 1000 lines of this.
+
+It turns out, it was the same mistake as above. However, it was able to be successfully formatted.
+
+For this, I came up with a super quick solution.
+
+```diff
+for file in files:
+    category, month, day = file[4:-4].split("-")
+    things = open(file, "r").read().split("\n")
+
+    for thing in things:
+
+        try:
+            year, content = thing.split(" ", 1)
+
++           if len(content) <= 3:
++               continue
+
+            rows.append([category.title(), int(day), month.title(), int(year), content])
+
+        except:
+            logging.error(f"Cannot parse '{thing}'")
+```
+
+From here, it was a matter of sorting by year and writing to a CSV.
+
+```
+rows = sorted(rows, key=lambda x: x[3])
+
+print(len(rows))
+
+with open('onthisday.csv', mode='w') as fp:
+    csv_writer = csv.writer(fp, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+    csv_writer.writerow(header)
+
+    for row in rows:
+        csv_writer.writerow(row)
+```
+
+## Things I Could Work On
+
+- I feel like my code was TOO modular. At first, I sought to write really clean code that was easy to the eyes. However, I ended up slapping a bunch of edge case solutions and hoped for the best.
+- I certainly believe that I can clean the data from the moment I scraped it. I'm implying that I didn't need the cleaning files process, to begin with. Granted, this is just speculative
