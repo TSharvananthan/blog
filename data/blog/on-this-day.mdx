@@ -35,7 +35,12 @@ From the get-go, I knew the possible values of categories and months.
 
 ```py
 categories = ["birthdays", "deaths", "events", "weddings"]
-months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+months = [
+  "january", "february", "march",
+  "april", "may", "june",
+  "july", "august", "september",
+  "october", "november", "december"
+]
 ```
 
 For days, however every month has a specific number of days. Thankfully, there was the `calendar.monthrange(year, month)` function.
@@ -72,14 +77,16 @@ The HTML for something formatted like this looks like the following.
 
 ```html
 <li class="event">
-  <a href="/events/date/1235" class="date">1235</a> Emperor Joseph II orders Jews of Galicia Austria
-  to adopt family names
+  <a href="/events/date/1235" class="date">1235</a>
+  Emperor Joseph II orders Jews of Galicia Austria to adopt family names
 </li>
 ```
 
 ### Formatting Method #2
 
 ![image.png](/post-assets/on-this-day/2.png)
+
+The HTML for something formatted like this looks like the following.
 
 ```html
 <div class="section section--highlight section--pl">
@@ -134,13 +141,19 @@ I took the easy approach of scraping the individual formats into separate lists.
 For the first formatting method, it was only a matter of collecting every `<li>` tag.
 
 ```py
-p1 = [_.text for _ in soup.find("article").find_all("li")]
+p1 = [
+  _.text
+  for _ in soup.find("article").find_all("li")
+]
 ```
 
 For the second formatting method, it was a matter of collecting `<div>` tags that had a certain class
 
 ```py
-p2 =  [_.find("p").text for _ in soup.find_all("div", {"class": "section--highlight"})]
+p2 =  [
+  _.find("p").text
+  for _ in soup.find_all("div", {"class": "section--highlight"})
+]
 ```
 
 At this point, it was only a matter of adding the two lists and returning them.
@@ -199,7 +212,9 @@ A possible series of steps is the following
 - Replace every / with - --> `events-january-2`
 
 ```py
-output_file = url.replace('https://www.onthisday.com/', '').replace('?p={}', '').replace("/", "-")
+output_file = url.replace('https://www.onthisday.com/', '')
+output_file = output_file.replace('?p={}', '')
+output_file = output_file.replace("/", "-")
 
 with open(f"raw/{output_file}.txt", "w") as fp:
     fp.write("\n".join(page_data))
@@ -310,7 +325,13 @@ for file in files:
         try:
             year, content = thing.split(" ", 1)
 
-            rows.append([category.title(), int(day), month.title(), int(year), content])
+            rows.append([
+              category.title(),
+              int(day),
+              month.title(),
+              int(year),
+              content
+            ])
 
         except:
             logging.error(f"Cannot parse '{thing}'")
@@ -386,7 +407,13 @@ for file in files:
 +           if len(content) <= 3:
 +               continue
 
-            rows.append([category.title(), int(day), month.title(), int(year), content])
+            rows.append([
+              category.title(),
+              int(day),
+              month.title(),
+              int(year),
+              content
+            ])
 
         except:
             logging.error(f"Cannot parse '{thing}'")
@@ -400,7 +427,12 @@ rows = sorted(rows, key=lambda x: x[3])
 print(len(rows))
 
 with open('onthisday.csv', mode='w') as fp:
-    csv_writer = csv.writer(fp, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    csv_writer = csv.writer(
+      fp,
+      delimiter=',',
+      quotechar='"',
+      quoting=csv.QUOTE_MINIMAL
+    )
 
     csv_writer.writerow(header)
 
