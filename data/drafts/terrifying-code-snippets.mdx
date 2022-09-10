@@ -1,0 +1,499 @@
+---
+title: Terrifying Code Snippets
+date: '2022-07-23'
+tags: ['beginner', 'the-past']
+draft: false
+summary: 'Looking back on some code that I once wrote.'
+---
+
+I like looking back.
+
+There's something about seeing how far you've come.
+
+More imporantly, I like looking back at really bad code that I once wrote.
+
+I feel proud knowing that I no longer write that kind of terrible code.
+
+It's the sorta process that always repeats.
+
+Three years down the line, I would be doing the same thing and look down at student me.
+
+During my browse however, I discovered some truely abismal code that I would like to code.
+
+## Don't Repeat Yourself... without the Don't.
+
+What if I told you that I repeated myself **30** times in one project.
+
+I'm a big Leafs fan for context. So at one point in time, I wanted to simulate their games.
+
+So like any reasonable person, I pulled out the number of times
+
+```py
+while len(schedule) > 0:
+    try:
+        if teambeingplayed == "Anaheim Ducks":
+            if len(schedule) == 0:
+                break
+            if determinesawinornot > 95:
+                print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Lost")
+                schedule.pop(0)
+                leafslosses += 1
+                teambeingplayed = schedule[0]
+                determinesawinornot = random.randint(1,100)
+            else:
+                print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Won")
+                schedule.pop(0)
+                leafswins += 1
+                teambeingplayed = schedule[0]
+                determinesawinornot = random.randint(1,100)
+            game += 1
+            continue
+
+		[...]
+
+        if teambeingplayed == "Winnipeg Jets":
+            if len(schedule) == 0:
+                break
+            if determinesawinornot > 95:
+                print("Game", game, "Was Played Against The Winnipeg Jets", "The Leafs Lost")
+                schedule.pop(0)
+                leafslosses += 1
+                teambeingplayed = schedule[0]
+                determinesawinornot = random.randint(1,100)
+            else:
+                print("Game", game, "Was Played Against The Winnipeg Jets", "The Leafs Won")
+                schedule.pop(0)
+                leafswins += 1
+                teambeingplayed = schedule[0]
+                determinesawinornot = random.randint(1,100)
+            game += 1
+            continue
+    except IndexError:
+        break
+```
+
+Let's clear some unneeded lines.
+
+```py
+if len(schedule) == 0:
+	break
+```
+
+There's no point in including this given that the while loop already checks for this.
+
+```py
+schedule.pop(0)
+teambeingplayed = schedule[0]
+determinesawinornot = random.randint(1,100)
+```
+
+These lines don't need to be included twice.
+
+The code can be written as the following.
+
+```py
+if teambeingplayed == "Anaheim Ducks":
+	if determinesawinornot > 95:
+		print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Lost")
+		leafslosses += 1
+	else:
+		print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Won")
+		leafswins += 1
+
+	schedule.pop(0)
+	teambeingplayed = schedule[0]
+	determinesawinornot = random.randint(1,100)
+	game += 1
+	continue
+```
+
+Yet, that's only the beginning.
+
+```py
+schedule.pop(0)
+teambeingplayed = schedule[0]
+determinesawinornot = random.randint(1,100)
+game += 1
+continue
+```
+
+I can remove the `continue` clause and add the first four lines accordingly...
+
+```py
+while len(schedule) > 0:
+    try:
+		teambeingplayed = schedule[0]
+		determinesawinornot = random.randint(1,100)
+
+		if teambeingplayed == "Anaheim Ducks":
+			if determinesawinornot > 95:
+				print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Lost")
+				leafslosses += 1
+			else:
+				print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Won")
+				leafswins += 1
+
+		[...]
+
+		if teambeingplayed == "Winnipeg Jets":
+			if determinesawinornot > 95:
+				print("Game", game, "Was Played Against The Winnipeg Jets", "The Leafs Lost")
+				leafslosses += 1
+			else:
+				print("Game", game, "Was Played Against The Winnipeg Jets", "The Leafs Won")
+				leafswins += 1
+
+		game += 1
+		schedule.pop(0)
+
+    except IndexError:
+        break
+```
+
+Note that I chose to include the process of selecting a team and choosing a random number at the top since it avoids any IndexError as the loop would break the moment the last item is removed from the list.
+
+Knowing that, I can remove the try, except clause.
+
+```
+while len(schedule) > 0:
+	teambeingplayed = schedule[0]
+	determinesawinornot = random.randint(1,100)
+
+	if teambeingplayed == "Anaheim Ducks":
+		if determinesawinornot > 95:
+			print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Lost")
+			leafslosses += 1
+		else:
+			print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Won")
+			leafswins += 1
+
+	[...]
+
+	if teambeingplayed == "Winnipeg Jets":
+		if determinesawinornot > 95:
+			print("Game", game, "Was Played Against The Winnipeg Jets", "The Leafs Lost")
+			leafslosses += 1
+		else:
+			print("Game", game, "Was Played Against The Winnipeg Jets", "The Leafs Won")
+			leafswins += 1
+
+	game += 1
+	schedule.pop(0)
+```
+
+This project took up 560 lines. However, these small changes reduced the program to 270 lines.
+
+(note that from here on out, I will be using line counts to gague significant improvements to the program. )
+
+Another change that I could make is the following.
+
+Note this string.
+
+```py
+print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Lost")
+```
+
+This appears a whopping 58 times throughout my code.
+
+Let's note the content of the string.
+
+```
+			   ----- The game variable         ------- The team variable
+			   |                               |
+print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Lost")
+                                                                  |
+																  ------ Whether I won or lost
+```
+
+I can rewrite this as an f-string.
+
+```py
+print(f"Game {game} Was Played Against The {teambeingplayed} The Leafs {iswon}")
+```
+
+The one issue is that I don't have a variable to handle whether the team won or lost.
+
+This can be solved with a flag.
+
+```py
+while len(schedule) > 0:
+	iswon = False
+	teambeingplayed = schedule[0]
+	determinesawinornot = random.randint(1,100)
+
+	if teambeingplayed == "Anaheim Ducks":
+		if determinesawinornot > 95:
+			print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Lost")
+			leafslosses += 1
+		else:
+			print("Game", game, "Was Played Against The Anaheim Ducks", "The Leafs Won")
+			leafswins += 1
+
+	[...]
+
+	if teambeingplayed == "Winnipeg Jets":
+		if determinesawinornot > 95:
+			print("Game", game, "Was Played Against The Winnipeg Jets", "The Leafs Lost")
+			leafslosses += 1
+		else:
+			print("Game", game, "Was Played Against The Winnipeg Jets", "The Leafs Won")
+			leafswins += 1
+
+	game += 1
+	schedule.pop(0)
+```
+
+Furthermore, we can remove the `print` statements and add one at the very end.
+
+```py
+while len(schedule) > 0:
+	iswon = False
+	teambeingplayed = schedule[0]
+	determinesawinornot = random.randint(1,100)
+
+	if teambeingplayed == "Anaheim Ducks":
+		if determinesawinornot > 95:
+			leafslosses += 1
+		else:
+			leafswins += 1
+
+	[...]
+
+	if teambeingplayed == "Winnipeg Jets":
+		if determinesawinornot > 95:
+			leafslosses += 1
+		else:
+			leafswins += 1
+
+	game += 1
+	schedule.pop(0)
+	print(f'Game {game} Was Played Against The {teambeingplayed} The Leafs {"Won" if iswon else "Lost"}')
+```
+
+The next question is... how do we set the flag?
+
+Note `determinesawinornot > [some number]`. This is what determines if there's a win or a loss.
+
+So why not set it to the flag?
+
+```py
+while len(schedule) > 0:
+	iswon = False
+	teambeingplayed = schedule[0]
+	determinesawinornot = random.randint(1,100)
+
+	if teambeingplayed == "Anaheim Ducks":
+		iswon = determinesawinornot > 95:
+
+	[...]
+
+	if teambeingplayed == "Winnipeg Jets":
+		iswon = determinesawinornot > 95:
+
+	game += 1
+	schedule.pop(0)
+	print(f'Game {game} Was Played Against The {teambeingplayed} The Leafs {"Won" if iswon else "Lost"}')
+```
+
+In order to tally wins/losses, we can do a simple check at the end of the code.
+
+```py
+while len(schedule) > 0:
+	iswon = False
+	teambeingplayed = schedule[0]
+	determinesawinornot = random.randint(1,100)
+
+	if teambeingplayed == "Anaheim Ducks":
+		iswon = determinesawinornot > 95:
+
+	[...]
+
+	if teambeingplayed == "Winnipeg Jets":
+		iswon = determinesawinornot > 95:
+
+	if iswon:
+		leafslosses += 1
+
+	else:
+		leafswins += 1
+
+	game += 1
+	schedule.pop(0)
+	print(f'Game {game} Was Played Against The {teambeingplayed} The Leafs {"Won" if iswon else "Lost"}')
+```
+
+At this point, I've gone from 270 lines to 134 lines.
+
+One last minor switch that I would do is add `elif` clauses.
+
+```py
+while len(schedule) > 0:
+	iswon = False
+	teambeingplayed = schedule[0]
+	determinesawinornot = random.randint(1,100)
+
+	if teambeingplayed == "Anaheim Ducks":
+		iswon = determinesawinornot > 95:
+
+	[...]
+
+	elif teambeingplayed == "Winnipeg Jets":
+		iswon = determinesawinornot > 95:
+
+	if iswon:
+		leafslosses += 1
+
+	else:
+		leafswins += 1
+
+	game += 1
+	schedule.pop(0)
+	print(f'Game {game} Was Played Against The {teambeingplayed} The Leafs {"Won" if iswon else "Lost"}')
+```
+
+At this point, the nightmarish aspect of this project is done. Yet, the further I look at the code, the more I see that I could fix.
+
+Let me show the rest of the code.
+
+```py
+import random
+from os import system
+from time import sleep #used for some aesthetics and style
+
+teams = ["Anaheim Ducks","Arizona Coyotes","Boston Bruins","Buffalo Sabres","Calgary Flames","Carolina Hurricanes","Chicago Blackhawks","Colorado Avalanche","Columbus Blue Jackets",
+"Dallas Stars","Detroit Red Wings","Edmonton Oilers","Florida Panthers","Los Angeles Kings","Minnesota Wild","Montreal Canadiens","Nashville Predators","New Jersey Devils",
+"New York Islanders","New York Rangers","Philadelphia Flyers","Pittsburgh Penguins","Ottawa Senators","San Jose Sharks","St Louis Blues","Tampa Bay Lightning","Vancouver Canucks",
+"Washington Capitals","Winnipeg Jets"]
+
+'Setting Up The Schedules'
+#Adds Some Extra Team Matchups To The Mix
+while not len(teams) == 82:
+    try:
+        teams.append(teams[random.randint(1,30)])
+    except IndexError:
+        break
+
+
+#Creating The Schedule
+schedule = random.sample(teams, len(teams))
+teambeingplayed = schedule[0]
+'Setting Up The Schedules'
+
+
+'Actually Simulating A Season'
+determinesawinornot = random.randint(1,100)
+leafswins = 0
+leafslosses = 0
+game = 1
+
+while len(schedule) > 0:
+	iswon = False
+	teambeingplayed = schedule[0]
+	determinesawinornot = random.randint(1,100)
+
+	if teambeingplayed == "Anaheim Ducks":
+		iswon = determinesawinornot > 95:
+
+	[...]
+
+	elif teambeingplayed == "Winnipeg Jets":
+		iswon = determinesawinornot > 95:
+
+	if iswon:
+		leafslosses += 1
+
+	else:
+		leafswins += 1
+
+	game += 1
+	schedule.pop(0)
+	print(f'Game {game} Was Played Against The {teambeingplayed} The Leafs {"Won" if iswon else "Lost"}')
+
+print("Leafs Won", leafswins, "game")
+print("Leafs Lost", leafslosses, "game")
+```
+
+The first thing that I notice is the following.
+
+```py
+'Setting Up The Schedules'
+#Adds Some Extra Team Matchups To The Mix
+while not len(teams) == 82:
+    try:
+        teams.append(teams[random.randint(1,30)])
+    except IndexError:
+        break
+
+
+#Creating The Schedule
+schedule = random.sample(teams, len(teams))
+teambeingplayed = schedule[0]
+```
+
+I shouldn't need a while loop to run. Knowing the list of teams, I can merely select random ones untill I have 82.
+
+It can be written accordingly.
+
+```py
+#Creating The Schedule
+schedule = [random.choice(teams) for _ in range(len(82))]
+teambeingplayed = schedule[0]
+```
+
+Something that I really don't enjoy is the repetitivness of the `iswon` checks.
+
+To fix this, I can turn the `teams` list into a dictionary.
+
+```
+teams = {'Anaheim Ducks': 95, 'Arizona Coyotes': 5, 'Boston Bruins': 25, 'Buffalo Sabres': 95, 'Calgary Flames': 50, 'Carolina Hurricanes': 33, 'Chicago Blackhawks': 50, 'Colorado Avalanche': 50, 'Columbus Blue Jackets': 67, 'Dallas Stars': 50, 'Detroit Red Wings': 75, 'Edmonton Oilers': 95, 'Florida Panthers': 63, 'Los Angeles Kings': 95, 'Minnesota Wild': 50, 'Montreal Canadiens': 95, 'Nashville Predators': 5, 'New Jersey Devils': 95, 'New York Islanders': 33, 'New York Rangers': 50, 'Philadelphia Flyers': 83, 'Pittsburgh Penguins': 67, 'Ottawa Senators': 25, 'San Jose Sharks': 95, 'St Louis Blues': 25, 'Tampa Bay Lightning': 33, 'Vancouver Canucks': 75, 'Washington Capitals': 67, 'Winnipeg Jets': 95}
+```
+
+As a result however, I need to make one small change in the schedule creation.
+
+```py
+schedule = [random.choice(list(teams.keys())) for _ in range(82)]
+```
+
+However, this allows me to remove the rather long `if` clause.
+
+```py
+import random
+from os import system
+from time import sleep #used for some aesthetics and style
+
+teams = {'Anaheim Ducks': 95, 'Arizona Coyotes': 5, 'Boston Bruins': 25, 'Buffalo Sabres': 95, 'Calgary Flames': 50, 'Carolina Hurricanes': 33, 'Chicago Blackhawks': 50, 'Colorado Avalanche': 50, 'Columbus Blue Jackets': 67, 'Dallas Stars': 50, 'Detroit Red Wings': 75, 'Edmonton Oilers': 95, 'Florida Panthers': 63, 'Los Angeles Kings': 95, 'Minnesota Wild': 50, 'Montreal Canadiens': 95, 'Nashville Predators': 5, 'New Jersey Devils': 95, 'New York Islanders': 33, 'New York Rangers': 50, 'Philadelphia Flyers': 83, 'Pittsburgh Penguins': 67, 'Ottawa Senators': 25, 'San Jose Sharks': 95, 'St Louis Blues': 25, 'Tampa Bay Lightning': 33, 'Vancouver Canucks': 75, 'Washington Capitals': 67, 'Winnipeg Jets': 95}
+
+'Setting Up The Schedules'
+
+#Creating The Schedule
+schedule = [random.choice(list(teams.keys())) for _ in range(82)]
+teambeingplayed = schedule[0]
+
+'Actually Simulating A Season'
+determinesawinornot = random.randint(1,100)
+leafswins = 0
+leafslosses = 0
+game = 1
+
+while len(schedule) > 0:
+    iswon = False
+    teambeingplayed = schedule[0]
+    determinesawinornot = random.randint(1,100)
+
+    iswon = determinesawinornot > teams[teambeingplayed]
+
+    if iswon:
+    	leafslosses += 1
+
+    else:
+    	leafswins += 1
+
+    game += 1
+    schedule.pop(0)
+    print(f'Game {game} Was Played Against The {teambeingplayed} The Leafs {"Won" if iswon else "Lost"}')
+
+print("Leafs Won", leafswins, "game")
+print("Leafs Lost", leafslosses, "game")
+```
+
+Now, I've gone from 134 lines to 37 lines.

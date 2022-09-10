@@ -1,0 +1,232 @@
+---
+title: 12345678
+date: '2022-05-25'
+tags: ['pointless-math', 'homoglyphs']
+draft: false
+summary: One 2, Three 4s, Five 6, Seven 8s 🤓
+---
+
+## Overview
+
+I was doing my daily session of grazing LinkedIn and reading my empty DMs, when I saw this post
+
+![A long joke that if you can't see, you should click off before any more of your time is wasted.](/post-assets/12345678/1.png)
+
+There's something about these kind of posts that... anyways...
+
+It had me wondering. Let's say that the candidate has some valuable information in his email. I don't know... he owns the Leafs, and I would like to find out why they keep losing in the first round.
+
+If I were the interviewer and I (for some reason), wanted to access the candidate's email, how many passwords would I need to go through in order to find the correct one.
+
+## Assumptions
+
+### Every Password Only Takes Unicode Characters.
+
+I'd like to restrict the possible characters that could be used as a password.
+
+At the same time, it's a common character code that's used by all forms of websites.
+
+In other words, useful for me.
+
+### Every Password Has Some Representation Of Numbers 1-8 Ascending
+
+It's easier.
+
+Sure, I can't be nearly as creative and come up with stuff like 2444666668888888 (one 2, three 4s, five 6, seven 8s).
+
+However, it's easier.
+
+At the same time, it's hard to quantify a password like the above. There really isn't a process to calculate a password like that.
+
+## The Process
+
+There's really only a couple steps that I'd need to take in order for this to work.
+
+### Step 1: Collect the Representations of Every Number From 1 to 8
+
+![An image that demonstrates step 1](/post-assets/12345678/2.png)
+
+### Step 2: Compute the Combinations
+
+![An image that demonstrates step 2](/post-assets/12345678/3.png)
+
+### Step 3: Count The Number of Combinations
+
+![An image that demonstrates step 3](/post-assets/12345678/4.png)
+
+## A Primer On Set Theory
+
+Set theory is rather useful here given that it allows me to quantify a collection of representations.
+
+Here's a quick run through of what sets are and the applications I choose to use for this problem.
+
+If you're aware of basic sets, cardinality and cartesian product, feel free to skip to [here]().
+
+### What Is A Set?
+
+A set is any mathematical model for a collection of objects. A set can represent anything and is often enclosed between $$\{~\}$$.
+
+For example, the numbers 1 to 10 can be represented as $$\{1, 2, 3, 4, 5, 6, 7, 8, 9, 10\}$$
+
+There are also some well defined sets.
+
+<table>
+    <tbody>
+        <tr>
+            <th>Number Type</th>
+            <th>Symbol</th>
+            <th>Set Of Numbers</th>
+        </tr>
+        <tr>
+            <td>Natural Numbers</td>
+            <td>$$\mathbb{N}$$</td>
+            <td>$$\{1, 2, 3, 4, 5, 6...\}$$</td>
+        </tr>
+        <tr>
+            <td>Whole Numbers</td>
+            <td>$$\mathbb{W}$$</td>
+            <td>$$\{0, 1, 2, 3, 4, 5, 6...\}$$</td>
+        </tr>
+        <tr>
+            <td>Integers</td>
+            <td>$$\mathbb{Z}$$</td>
+            <td>$$\{...-3, -2, -1, 0, 1, 2, 3...\}$$</td>
+        </tr>
+        <tr>
+            <td>Rational</td>
+            <td>$$\mathbb{Q}$$</td>
+            <td>$$\{\frac{7}{8}, -3.4, 9.45454545, \frac{3}{4}...\}$$</td>
+        </tr>
+        <tr>
+            <td>Real Numbers</td>
+            <td>$$\mathbb{R}$$</td>
+            <td>$$\{\pi, e, -2\pi\}$$</td>
+        </tr>
+    </tbody>
+</table>
+
+I will be making use of sets throughout this post. Specifically, there are two properties that will be useful for this situation.
+
+### Cardinality
+
+Cardinality refers to the number of objects that exists in a set.
+
+For example,
+
+$$S=\{1, 2, 3, 4, 5, 6, 7, 8, 9, 10\}$$
+
+The cardinality of $$S$$ is 10.
+
+### Cartesian Product
+
+Let's say I have to go outside and I need to choose a shirt and a pair of jeans to wear.
+
+I know that I have a red, blue and white shirt. I also know that I have blue and black jeans.
+
+I can represent the possible shirts I have in a set $$S=\{Red,Blue,White\}$$
+
+I can ALSO represent the possible jeans I have in another set $$J=\{Blue,Black\}$$
+
+My question now is, _how many shirt/jean combinations can I make?_
+
+The Cartesian Product in essence, asks this question.
+
+The Cartesian Product is a set that represents the number of ways one can pull from multiple sets.
+
+The only condition is that you **must** pull from each set once.
+
+![An image that demonstrates step 1](/post-assets/12345678/5.png)
+
+<figcaption>A way of visualizing every combination.</figcaption>
+
+Let's extend this idea a bit further.
+
+I know that the cardinality of $$S$$ is 3 and the cardinality of $$J$$ is 2.
+
+By multiplying both values, I get 6 possible combinations.
+
+In other words, the Cartesian Product returns a set of combinations.
+
+Multiplying the cardinalities of both sets returns the cardinality of their Cartesian Product.
+
+Now that both concepts are out of the way, it's time that we get into the math.
+
+## Step 1
+
+The question that this step looks to answer is... "how can I represent numbers 1 to 8?"
+
+We can clear out the numerical representations. In other words: 1, 2, 3, 4, 5, 6, 7 and 8.
+
+Another way is through words. In other words: one, two, three, four, five, six, seven and eight.
+
+HOWEVER, this raises two concerns:
+
+### How about capital letters?
+
+Since we have a concerete idea of what a capital letter is, there isn't much to worry about in this department.
+
+### Aren't there other ways of representing letters?
+
+Take the letter "O". What stops us from representing them with a zero?
+
+That's right... nothing.
+
+These are called [homoglyphs](https://en.wikipedia.org/wiki/Homoglyph)
+
+There currently exists a [list of homoglyphs for every Unicode character](https://github.com/yamatt/homoglyphs/blob/main/homoglyphs_fork/confusables.json). I can take from this.
+
+All that I need are:
+_ Capital letter confusables
+_ Lowercase letter confusables \* Number confusables
+
+This can be done with a few lines of Python.
+
+```py
+import json
+import string
+
+confusables = json.load(open("confusables.json"))
+letters = string.ascii_lowercase + string.ascii_uppercase
+
+needed_confusables = {}
+
+for char in letters:
+    needed_confusables[char] = confusables[char] + confusables[char.upper()]
+
+for digit in string.digits:
+    needed_confusables[digit] = confusables[digit]
+```
+
+### Representing The Same Words
+
+Now that I have the needed confusables, it's possible to begin modelling this situation.
+
+Below is a table for the number of confusables that each character has.
+
+```
+'a' = 49     'b' = 46     'c' = 48     'd' = 38
+'e' = 47     'f' = 42     'g' = 35     'h' = 43
+'i' = 38     'j' = 37     'k' = 40     'l' = 96
+'m' = 31     'n' = 38     'o' = 120    'p' = 55
+'q' = 30     'r' = 40     's' = 42     't' = 45
+'u' = 49     'v' = 55     'w' = 41     'x' = 58
+'y' = 60     'z' = 41
+
+'A' = 52     'B' = 56     'C' = 54     'D' = 38
+'E' = 56     'F' = 48     'G' = 34     'H' = 52
+'I' = 2      'J' = 40     'K' = 54     'L' = 48
+'M' = 60     'N' = 46     'O' = 90     'P' = 52
+'Q' = 28     'R' = 42     'S' = 44     'T' = 64
+'U' = 44     'V' = 52     'W' = 38     'X' = 70
+'Y' = 60     'Z' = 50
+
+'0' = 1      '1' = 1      '2' = 11     '3' = 15
+'4' = 7      '5' = 7      '6' = 9      '7' = 8
+'8' = 12     '9' = 14
+```
+
+From here, I can get
+
+## Step 2
+
+## Step 3
