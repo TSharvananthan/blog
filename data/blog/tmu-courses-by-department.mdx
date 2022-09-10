@@ -1,0 +1,182 @@
+---
+title: TMU Courses by Section
+date: '2022-09-09'
+tags: ['web-scraping', 'school']
+draft: false
+summary: 'Courses at Toronto Met by section'
+---
+
+The other day, I wanted to scrape a list of courses that my university offers. By the end of it, I had a list of **3507** courses from **158** course sections.
+
+A course string consists of two parts.
+
+1. Course section
+2. Course number
+
+For example, CPS109 implies that
+
+- The section is Computer Science (CPS)
+- The course number is 109
+
+Below are the number of courses that every section offers sorted from greatest to least.
+
+| Section | Course Count |
+| ------- | :----------: |
+| RTA     |     176      |
+| WKT     |     111      |
+| PHL     |      89      |
+| SOC     |      86      |
+| GEO     |      86      |
+| ENG     |      77      |
+| CPS     |      70      |
+| PSY     |      70      |
+| HIS     |      66      |
+| HST     |      65      |
+| ECN     |      64      |
+| MTH     |      62      |
+| JRN     |      61      |
+| FSN     |      59      |
+| BLG     |      58      |
+| ASC     |      55      |
+| SWP     |      53      |
+| CMN     |      52      |
+| GCM     |      51      |
+| THF     |      50      |
+| POG     |      49      |
+| CHY     |      48      |
+| CVL     |      46      |
+| ITM     |      43      |
+| PCS     |      43      |
+| FPN     |      40      |
+| CRI     |      40      |
+| NPF     |      40      |
+| CLD     |      40      |
+| CHE     |      40      |
+| MEC     |      39      |
+| FRE     |      39      |
+| ELE     |      39      |
+| CYC     |      37      |
+| RMG     |      36      |
+| AER     |      36      |
+| CRM     |      35      |
+| GMS     |      34      |
+| PLG     |      33      |
+| PLE     |      32      |
+| PPA     |      31      |
+| INT     |      29      |
+| FFD     |      29      |
+| SPN     |      29      |
+| BME     |      29      |
+| OHS     |      28      |
+| ENH     |      28      |
+| LAW     |      27      |
+| IND     |      27      |
+| THP     |      27      |
+| FCD     |      26      |
+| FIN     |      26      |
+| MWF     |      26      |
+| NNS     |      26      |
+| NSE     |      25      |
+| ENT     |      23      |
+| POL     |      22      |
+| ACC     |      22      |
+| FFC     |      22      |
+| EUS     |      21      |
+| COE     |      21      |
+| DST     |      21      |
+| MHR     |      21      |
+| MPF     |      21      |
+| MPS     |      20      |
+| AFF     |      19      |
+| MKT     |      18      |
+| IDE     |      17      |
+| NUR     |      17      |
+| ACS     |      17      |
+| AFA     |      17      |
+| BMS     |      16      |
+| MUS     |      14      |
+| HSM     |      14      |
+| SCI     |      13      |
+| HIM     |      13      |
+| REM     |      13      |
+| IRN     |      12      |
+| THD     |      12      |
+| FMF     |      12      |
+| HTT     |      11      |
+| INP     |      11      |
+| QMS     |      11      |
+| CHN     |      11      |
+| THT     |      10      |
+| THA     |      10      |
+| FFS     |      10      |
+| SSH     |      10      |
+| FNN     |      10      |
+| BCH     |      9       |
+| PPN     |      9       |
+| FDL     |      9       |
+| FNY     |      9       |
+| LIR     |      9       |
+| BPM     |      8       |
+| ARB     |      8       |
+| PUB     |      8       |
+| REL     |      8       |
+| THM     |      8       |
+| CRB     |      8       |
+| EMS     |      8       |
+| HTH     |      8       |
+| IDF     |      7       |
+| FNP     |      7       |
+| MPC     |      7       |
+| FNR     |      6       |
+| FMG     |      6       |
+| POH     |      6       |
+| ASL     |      6       |
+| PMT     |      6       |
+| BSC     |      6       |
+| IRT     |      6       |
+| MPI     |      6       |
+| IRH     |      5       |
+| HTL     |      5       |
+| FRS     |      5       |
+| TEC     |      5       |
+| BUS     |      5       |
+| CEN     |      5       |
+| HTF     |      4       |
+| IRD     |      4       |
+| LNG     |      4       |
+| IRC     |      4       |
+| FND     |      4       |
+| EIE     |      4       |
+| ANT     |      4       |
+| IRP     |      4       |
+| HTM     |      4       |
+| PAT     |      4       |
+| PLN     |      3       |
+| PLX     |      3       |
+| ARC     |      3       |
+| HTR     |      3       |
+| MTL     |      3       |
+| HTA     |      3       |
+| IRL     |      3       |
+| FNF     |      3       |
+| BSM     |      3       |
+| EES     |      3       |
+| FNS     |      3       |
+| SEM     |      3       |
+| THG     |      2       |
+| SPS     |      2       |
+| HTI     |      2       |
+| NCL     |      2       |
+| MHK     |      2       |
+| LAT     |      2       |
+| HAU     |      2       |
+| GRK     |      2       |
+| FNU     |      2       |
+| CHS     |      2       |
+| ZON     |      2       |
+| NUC     |      1       |
+| HTD     |      1       |
+| GER     |      1       |
+| THL     |      1       |
+| EID     |      1       |
+| CAF     |      1       |
